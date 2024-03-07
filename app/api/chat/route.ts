@@ -9,9 +9,9 @@ export const runtime = 'edge'
 export async function POST(req: Request) {
   const json = await req.json()
   const { messages, previewToken } = json
-  const authResponse = (await auth());
-  console.log("auth response", authResponse)
-  const userId = authResponse?.user.id
+  // const authResponse = (await auth());
+  // console.log("auth response", authResponse)
+  // const userId = authResponse?.user.id
 
   // if (!userId) {
   //   return new Response('Unauthorized', {
