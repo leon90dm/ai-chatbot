@@ -55,15 +55,11 @@ export function Header() {
         </React.Suspense>
       </div>
       <div className="flex items-center justify-end space-x-2">
-        <a
-          href="https://github.com/vercel/nextjs-ai-chatbot/"
-          target="_blank"
-          className={cn(buttonVariants())}
-        >
+      
           <IconVercel className="mr-2" />
           <span className="hidden sm:block">NeoChat</span>
           <span className="sm:hidden">Deploy</span>
-        </a>
+   
       </div>
     </header>
   )
