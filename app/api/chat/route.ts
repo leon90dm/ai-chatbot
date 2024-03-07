@@ -14,25 +14,29 @@ const openai = new OpenAI({
 export async function POST(req: Request) {
   const json = await req.json()
   const { messages, previewToken } = json
-  const userId = (await auth())?.user.id
+  const authResponse = (await auth());
+  console.log("auth response", authResponse)
+  const userId = authResponse?.user.id
 
-  if (!userId) {
-    return new Response('Unauthorized', {
-      status: 401
-    })
-  }
+  // if (!userId) {
+  //   return new Response('Unauthorized', {
+  //     status: 401
+  //   })
+  // }
 
   if (previewToken) {
     openai.apiKey = previewToken
   }
-
-  const res = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages,
-    temperature: 0.7,
-    stream: true
+  const res = new Response('到此一游', {
+    status: 200
   })
-
+  // return res
+  // const res = await openai.chat.completions.create({
+  //   model: 'gpt-3.5-turbo',
+  //   messages,
+  //   temperature: 0.7,
+  //   stream: true
+  // })
   const stream = OpenAIStream(res, {
     async onCompletion(completion) {
       const title = json.messages[0].content.substring(0, 100)
