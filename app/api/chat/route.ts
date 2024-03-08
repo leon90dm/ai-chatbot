@@ -3,6 +3,7 @@ import { OpenAIStream, StreamingTextResponse } from 'ai'
 
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
+import  {DisChat} from '@/app/api/disc/api'
 
 export const runtime = 'edge'
 
@@ -18,9 +19,10 @@ export async function POST(req: Request) {
   //     status: 401
   //   })
   // }
-  const res = new Response('hao~ haov haov', {
+  const res = new Response(await DisChat(messages), {
     status: 200
   })
+  // console.log('chat response', res)
   return res
   // const res = await openai.chat.completions.create({
   //   model: 'gpt-3.5-turbo',
