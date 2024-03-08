@@ -3,9 +3,64 @@ import { OpenAIStream, StreamingTextResponse } from 'ai'
 
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
-import  {DisChat} from '@/app/api/disc/api'
+import axios from 'axios'; 
 
 export const runtime = 'edge'
+
+
+const botToken = process.env.CDP_TOKEN; // Replace with your Discord bot token
+const SEND_TOKEN = process.env.SEND_TOKEN;
+const CHANNEL_ID = process.env.CHANNEL_ID;
+const POT_ID = process.env.POT_ID
+
+// Function to send a message to the Discord bot
+async function SendMessage(channelId: string | undefined, message: string) {
+  try {
+      console.log('sendmessage,',channelId,' message,', message)
+      const response = await axios.post(`https://discord.com/api/v9/channels/${channelId}/messages`, {
+          content: message,
+      }, {
+          headers: {
+              'Authorization': SEND_TOKEN,
+              'Content-Type': 'application/json',
+          },
+      });
+
+      // Wait for the bot's response 
+      const messageId = response.data.id;
+      console.log('messageId:', messageId);
+
+      let botResponse;
+      let i = 20;
+      while (i-- > 0) {
+          const responseUrl = `https://discord.com/api/v9/channels/${channelId}/messages?after=${messageId}`;
+          botResponse = await axios.get(responseUrl, {
+              headers: {
+                  'Authorization': 'Bot ' + botToken,
+              },
+          });
+          for (const message of botResponse.data) {
+              if (message.referenced_message && message.referenced_message.id === messageId) {
+                  //log(message.content);
+                  console.log(message.id,":",":",message.components.length,"->",message.content);
+                  if (message.components && message.components.length > 0) {
+                      return message.content;
+                  }
+              }
+          }
+          await new Promise(resolve => setTimeout(resolve, 3000));
+      }
+      console.log("end----")
+  } catch (error) {
+      console.error(error);
+  }
+}
+
+async function DisChat(messages: string | any[]){
+  var message = messages[messages.length-1].content
+  console.log("sending message: ", message)
+  return SendMessage(CHANNEL_ID, `<@${POT_ID}> ${message}`)
+}
 
 export async function POST(req: Request) {
   const json = await req.json()
@@ -19,7 +74,9 @@ export async function POST(req: Request) {
   //     status: 401
   //   })
   // }
-  const res = new Response(await DisChat(messages), {
+  var discRes = await DisChat(messages)
+  console.log("discRes:", discRes)
+  const res = new Response(discRes, {
     status: 200
   })
   // console.log('chat response', res)

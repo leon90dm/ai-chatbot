@@ -30,6 +30,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "app/api/disc/api.js"  ],
   "exclude": ["node_modules"]
 }
