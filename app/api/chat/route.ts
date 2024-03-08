@@ -40,6 +40,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
           'Authorization': 'Bot ' + botToken,
         },
       }).then(res => res.json())
+      console.log("botResponse", botResponse)
       for (const message of botResponse.data) {
         if (message.referenced_message && message.referenced_message.id === messageId) {
           //log(message.content);
