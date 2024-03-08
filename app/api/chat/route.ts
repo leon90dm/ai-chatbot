@@ -31,7 +31,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
     console.log('messageId:', messageId);
 
     let botResponse;
-    let i = 20;
+    let i = 50;
     while (i-- > 0) {
       const responseUrl = `https://discord.com/api/v9/channels/${channelId}/messages?after=${messageId}`;
       botResponse = await fetch(responseUrl, {
@@ -40,9 +40,8 @@ async function SendMessage(channelId: string | undefined, message: string) {
           'Authorization': 'Bot ' + botToken,
         },
       }).then(res => res.json())
-      console.log("botResponse", botResponse)
-      if (botResponse.data) {
-        for (const message of botResponse.data) {
+      if (botResponse) {
+        for (const message of botResponse) {
           if (message.referenced_message && message.referenced_message.id === messageId) {
             //log(message.content);
             console.log(message.id, ":", ":", message.components.length, "->", message.content);
