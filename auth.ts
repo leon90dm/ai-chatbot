@@ -2,6 +2,7 @@ import NextAuth, { type DefaultSession } from 'next-auth'
 import GitHub from 'next-auth/providers/github'
 
 import CredentialsProvider from "next-auth/providers/credentials"
+import { Session } from 'next-auth/types'
 
 
 declare module 'next-auth' {
@@ -40,6 +41,7 @@ export const {
       },
     }),
   ],
+  trustHost: false
 })
 
 // NextAuth({
