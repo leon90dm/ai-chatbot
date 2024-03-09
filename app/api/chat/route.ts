@@ -3,7 +3,7 @@ import { OpenAIStream, StreamingTextResponse } from 'ai'
 
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
-import axios from 'axios'; 
+
 
 export const runtime = 'edge'
 
@@ -16,48 +16,51 @@ const POT_ID = process.env.POT_ID
 // Function to send a message to the Discord bot
 async function SendMessage(channelId: string | undefined, message: string) {
   try {
-      console.log('sendmessage,',channelId,' message,', message)
-      const response = await axios.post(`https://discord.com/api/v9/channels/${channelId}/messages`, {
-          content: message,
-      }, {
-          headers: {
-              'Authorization': SEND_TOKEN,
-              'Content-Type': 'application/json',
-          },
-      });
+    console.log('sendmessage,', channelId, ' message,', message)
+    const response = fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `${SEND_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ content: message })
+    });
 
-      // Wait for the bot's response 
-      const messageId = response.data.id;
-      console.log('messageId:', messageId);
+    // Wait for the bot's response 
+    const messageId = await response.then(res => res.json()).then(data => data.id).catch(console.error);
+    console.log('messageId:', messageId);
 
-      let botResponse;
-      let i = 20;
-      while (i-- > 0) {
-          const responseUrl = `https://discord.com/api/v9/channels/${channelId}/messages?after=${messageId}`;
-          botResponse = await axios.get(responseUrl, {
-              headers: {
-                  'Authorization': 'Bot ' + botToken,
-              },
-          });
-          for (const message of botResponse.data) {
-              if (message.referenced_message && message.referenced_message.id === messageId) {
-                  //log(message.content);
-                  console.log(message.id,":",":",message.components.length,"->",message.content);
-                  if (message.components && message.components.length > 0) {
-                      return message.content;
-                  }
-              }
+    let botResponse;
+    let i = 50;
+    while (i-- > 0) {
+      const responseUrl = `https://discord.com/api/v9/channels/${channelId}/messages?after=${messageId}`;
+      botResponse = await fetch(responseUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bot ' + botToken,
+        },
+      }).then(res => res.json())
+      if (botResponse) {
+        for (const message of botResponse) {
+          if (message.referenced_message && message.referenced_message.id === messageId) {
+            //log(message.content);
+            console.log(message.id, ":", ":", message.components.length, "->", message.content);
+            if (message.components && message.components.length > 0) {
+              return message.content;
+            }
           }
-          await new Promise(resolve => setTimeout(resolve, 3000));
+        }
       }
-      console.log("end----")
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+    console.log("end----")
   } catch (error) {
-      console.error(error);
+    console.error(error);
   }
 }
 
-async function DisChat(messages: string | any[]){
-  var message = messages[messages.length-1].content
+async function DisChat(messages: string | any[]) {
+  var message = messages[messages.length - 1].content
   console.log("sending message: ", message)
   return SendMessage(CHANNEL_ID, `<@${POT_ID}> ${message}`)
 }
@@ -74,6 +77,7 @@ export async function POST(req: Request) {
   //     status: 401
   //   })
   // }
+  debugger
   var discRes = await DisChat(messages)
   console.log("discRes:", discRes)
   const res = new Response(discRes, {
