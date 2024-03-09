@@ -41,7 +41,7 @@ export const {
       },
     }),
   ],
-  trustHost: false
+  trustHost: true
 })
 
 // NextAuth({
