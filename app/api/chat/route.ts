@@ -3,7 +3,7 @@ import { OpenAIStream, StreamingTextResponse } from 'ai'
 
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
-
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 export const runtime = 'edge'
 
@@ -31,7 +31,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
     console.log('messageId:', messageId);
 
     let botResponse;
-    let i = 200;
+    let i = 500;
     while (i-- > 0) {
       const responseUrl = `https://discord.com/api/v9/channels/${channelId}/messages?after=${messageId}`;
       botResponse = await fetch(responseUrl, {
@@ -77,7 +77,6 @@ export async function POST(req: Request) {
   //     status: 401
   //   })
   // }
-  debugger
   var discRes = await DisChat(messages)
   console.log("discRes:", discRes)
   const res = new Response(discRes, {
