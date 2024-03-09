@@ -31,7 +31,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
     console.log('messageId:', messageId);
 
     let botResponse;
-    let i = 50;
+    let i = 200;
     while (i-- > 0) {
       const responseUrl = `https://discord.com/api/v9/channels/${channelId}/messages?after=${messageId}`;
       botResponse = await fetch(responseUrl, {
