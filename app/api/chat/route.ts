@@ -54,7 +54,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
     let streamDone = false;
     let messageContent = '';
 
-    const indexIterator = indexGenerator(INDEX_GEN_DELAY ? parseInt(INDEX_GEN_DELAY) : 100);
+    const signalIterator = indexGenerator(INDEX_GEN_DELAY ? parseInt(INDEX_GEN_DELAY) : 100);
     const callFn = async function () {
       while (featchTimes++ < 300) {
         const botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
@@ -78,15 +78,19 @@ async function SendMessage(channelId: string | undefined, message: string) {
     // Wraps a generator into a ReadableStream
     const stream = new ReadableStream({
       async start(controller) {
-        let previous = '';
-        for await (const v of indexIterator) {
-          if (v <= messageContent.length) {
-            const delta = messageContent.slice(previous.length);
+        let start = 0;
+        let end = 0;
+        for await (const _ of signalIterator) {
+          if(end < messageContent.length){
+            end = end + Math.floor((messageContent.length - end)/10);
+          }
+          if (start < end) {
+            const delta = messageContent.slice(start, end);
             controller.enqueue(delta);
-            previous = messageContent;
+            start = end;
           }
           if (streamDone) {
-            const delta = messageContent.slice(previous.length);
+            const delta = messageContent.slice(start);
             controller.enqueue(delta);
             controller.close();
             return;
