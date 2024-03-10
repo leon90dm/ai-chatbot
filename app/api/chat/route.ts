@@ -1,9 +1,9 @@
 import { kv } from '@vercel/kv'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
-
+import OpenAI from 'openai'
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
-import { HttpsProxyAgent } from 'https-proxy-agent';
+
 
 export const runtime = 'edge'
 
@@ -30,16 +30,17 @@ async function SendMessage(channelId: string | undefined, message: string) {
     const messageId = await response.then(res => res.json()).then(data => data.id).catch(console.error);
     console.log('messageId:', messageId);
 
+    const responseUrl = `https://discord.com/api/v9/channels/${channelId}/messages?after=${messageId}`;
+    const reqHeader = {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bot ' + botToken,
+      },
+    }
     let botResponse;
     let i = 500;
     while (i-- > 0) {
-      const responseUrl = `https://discord.com/api/v9/channels/${channelId}/messages?after=${messageId}`;
-      botResponse = await fetch(responseUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bot ' + botToken,
-        },
-      }).then(res => res.json())
+      botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
       if (botResponse) {
         for (const message of botResponse) {
           if (message.referenced_message && message.referenced_message.id === messageId) {
@@ -54,6 +55,36 @@ async function SendMessage(channelId: string | undefined, message: string) {
       await new Promise(resolve => setTimeout(resolve, 3000));
     }
     console.log("end----")
+
+    return await fetch(responseUrl, reqHeader).then(res => res.json()).then((botResponse) => {
+      const stream = new ReadableStream({
+        start(controller) {
+          // The following function handles each data chunk
+          function push() {
+            return async function() {
+              botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
+              if (botResponse) {
+                for (const message of botResponse) {
+                  if (message.referenced_message && message.referenced_message.id === messageId) {
+                    console.log(message.id, ":", ":", message.components.length, "->", message.content);
+                    if (message.components && message.components.length > 0) {
+                      controller.enqueue(message.content);
+                      controller.close();
+                      return message.content;
+                    }
+                    controller.enqueue(message.content);
+                  }
+                }
+              }
+              await new Promise(resolve => setTimeout(resolve, 3000));
+              push();
+            }
+          }
+          push();
+        },
+      });
+      return new Response(stream, {status:200});
+    });
   } catch (error) {
     console.error(error);
   }
@@ -78,45 +109,7 @@ export async function POST(req: Request) {
   //   })
   // }
   var discRes = await DisChat(messages)
-  console.log("discRes:", discRes)
-  const res = new Response(discRes, {
-    status: 200
-  })
-  // console.log('chat response', res)
-  return res
-  // const res = await openai.chat.completions.create({
-  //   model: 'gpt-3.5-turbo',
-  //   messages,
-  //   temperature: 0.7,
-  //   stream: true
-  // })
-  // const stream = OpenAIStream(res, {
-  //   async onCompletion(completion) {
-  //     const title = json.messages[0].content.substring(0, 100)
-  //     const id = json.id ?? nanoid()
-  //     const createdAt = Date.now()
-  //     const path = `/chat/${id}`
-  //     const payload = {
-  //       id,
-  //       title,
-  //       userId,
-  //       createdAt,
-  //       path,
-  //       messages: [
-  //         ...messages,
-  //         {
-  //           content: completion,
-  //           role: 'assistant'
-  //         }
-  //       ]
-  //     }
-  //     await kv.hmset(`chat:${id}`, payload)
-  //     await kv.zadd(`user:chat:${userId}`, {
-  //       score: createdAt,
-  //       member: `chat:${id}`
-  //     })
-  //   }
-  // })
+  return discRes
 
-  // return new StreamingTextResponse(stream)
+
 }
