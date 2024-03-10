@@ -88,15 +88,18 @@ async function SendMessage(channelId: string | undefined, message: string) {
             const delta = messageContent.slice(start, end);
             controller.enqueue(delta);
             start = end;
+            console.log("start", start, "end", end, "delta", delta)
           }
           if (streamDone) {
             const delta = messageContent.slice(start);
             controller.enqueue(delta);
             controller.close();
+            console.log("stream done, start", start, "end", end, "delta", delta)
             return;
           }
         }
         controller.close();
+        console.log("stream closed")
       },
     });
     return new Response(stream, { status: 200 });
