@@ -12,6 +12,19 @@ const botToken = process.env.CDP_TOKEN; // Replace with your Discord bot token
 const SEND_TOKEN = process.env.SEND_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 const POT_ID = process.env.POT_ID
+const INDEX_GEN_DELAY = process.env.INDEX_GEN_DELAY;
+
+function sleep(ms: number | undefined) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* indexGenerator(delay: number): AsyncGenerator<number> {
+  let i = 0;
+  while (true) {
+    yield i++;
+    await sleep(delay);
+  }
+}
 
 // Function to send a message to the Discord bot
 async function SendMessage(channelId: string | undefined, message: string) {
@@ -38,37 +51,51 @@ async function SendMessage(channelId: string | undefined, message: string) {
       },
     }
     let featchTimes = 0
-    return await fetch(responseUrl, reqHeader).then(res => res.json()).then((botResponse) => {
-      const stream = new ReadableStream({
-        start(controller) {
-          // The following function handles each data chunk
-          const callFn = async function () {
-            let previous = '';
-            while(featchTimes++ < 300){
-              botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
-              if (botResponse) {
-                for (const message of botResponse) {
-                  if (message.referenced_message && message.referenced_message.id === messageId) {
-                    console.log(message.id, ":", message.components.length, "->", message.content);
-                    const delta = message.content.slice(previous.length);
-                    previous = message.content;
-                    if (message.components && message.components.length > 0) {
-                      controller.enqueue(delta);
-                      controller.close();
-                      return;
-                    }
-                    controller.enqueue(delta);
-                  }
-                }
+    let streamDone = false;
+    let messageContent = '';
+
+    const indexIterator = indexGenerator(INDEX_GEN_DELAY ? parseInt(INDEX_GEN_DELAY) : 100);
+    const callFn = async function () {
+      while (featchTimes++ < 300) {
+        const botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
+        if (botResponse) {
+          for (const message of botResponse) {
+            if (message.referenced_message && message.referenced_message.id === messageId) {
+              console.log(message.id, ":", message.components.length, "->", message.content);
+              messageContent = message.content;
+              if (message.components && message.components.length > 0) {
+                streamDone = true;
+                return;
               }
-              await new Promise(resolve => setTimeout(resolve, 3000));
             }
           }
-          callFn();
-        },
-      });
-      return new Response(stream, {status:200});
+        }
+        await sleep(3000);
+      }
+      streamDone = true;
+    }
+    callFn();
+    // Wraps a generator into a ReadableStream
+    const stream = new ReadableStream({
+      async start(controller) {
+        let previous = '';
+        for await (const v of indexIterator) {
+          if (v <= messageContent.length) {
+            const delta = messageContent.slice(previous.length);
+            controller.enqueue(delta);
+            previous = messageContent;
+          }
+          if (streamDone) {
+            const delta = messageContent.slice(previous.length);
+            controller.enqueue(delta);
+            controller.close();
+            return;
+          }
+        }
+        controller.close();
+      },
     });
+    return new Response(stream, { status: 200 });
   } catch (error) {
     console.error(error);
   }
