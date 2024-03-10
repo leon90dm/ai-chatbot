@@ -37,13 +37,13 @@ async function SendMessage(channelId: string | undefined, message: string) {
         'Authorization': 'Bot ' + botToken,
       },
     }
-
+    let featchTimes = 0
     return await fetch(responseUrl, reqHeader).then(res => res.json()).then((botResponse) => {
       const stream = new ReadableStream({
         start(controller) {
           // The following function handles each data chunk
-          function push() {
-            return async function() {
+          const callFn = async function () {
+            while(featchTimes++ < 300){
               botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
               if (botResponse) {
                 for (const message of botResponse) {
@@ -59,10 +59,9 @@ async function SendMessage(channelId: string | undefined, message: string) {
                 }
               }
               await new Promise(resolve => setTimeout(resolve, 3000));
-              push();
             }
           }
-          push();
+          callFn();
         },
       });
       return new Response(stream, {status:200});
