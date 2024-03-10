@@ -43,18 +43,21 @@ async function SendMessage(channelId: string | undefined, message: string) {
         start(controller) {
           // The following function handles each data chunk
           const callFn = async function () {
+            let previous = '';
             while(featchTimes++ < 300){
               botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
               if (botResponse) {
                 for (const message of botResponse) {
                   if (message.referenced_message && message.referenced_message.id === messageId) {
-                    console.log(message.id, ":", ":", message.components.length, "->", message.content);
+                    console.log(message.id, ":", message.components.length, "->", message.content);
+                    const delta = message.content.slice(previous.length);
+                    previous = message.content;
                     if (message.components && message.components.length > 0) {
-                      controller.enqueue(message.content);
+                      controller.enqueue(delta);
                       controller.close();
-                      return message.content;
+                      return;
                     }
-                    controller.enqueue(message.content);
+                    controller.enqueue(delta);
                   }
                 }
               }
