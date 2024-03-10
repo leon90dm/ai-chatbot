@@ -108,8 +108,6 @@ export async function POST(req: Request) {
   //     status: 401
   //   })
   // }
-  var discRes = await DisChat(messages)
-  return discRes
-
+  return DisChat(messages)
 
 }
