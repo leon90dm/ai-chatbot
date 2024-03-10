@@ -37,24 +37,6 @@ async function SendMessage(channelId: string | undefined, message: string) {
         'Authorization': 'Bot ' + botToken,
       },
     }
-    let botResponse;
-    let i = 500;
-    while (i-- > 0) {
-      botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
-      if (botResponse) {
-        for (const message of botResponse) {
-          if (message.referenced_message && message.referenced_message.id === messageId) {
-            //log(message.content);
-            console.log(message.id, ":", ":", message.components.length, "->", message.content);
-            if (message.components && message.components.length > 0) {
-              return message.content;
-            }
-          }
-        }
-      }
-      await new Promise(resolve => setTimeout(resolve, 3000));
-    }
-    console.log("end----")
 
     return await fetch(responseUrl, reqHeader).then(res => res.json()).then((botResponse) => {
       const stream = new ReadableStream({
@@ -109,5 +91,6 @@ export async function POST(req: Request) {
   //   })
   // }
   return DisChat(messages)
+
 
 }
