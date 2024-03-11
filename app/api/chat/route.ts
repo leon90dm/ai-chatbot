@@ -3,6 +3,7 @@ import { OpenAIStream, StreamingTextResponse } from 'ai'
 import OpenAI from 'openai'
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
+import { Worker, isMainThread, workerData } from 'worker_threads';
 
 
 export const runtime = 'edge'
@@ -54,6 +55,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
     let streamDone = false;
     let messageContent = '';
 
+
     const signalIterator = indexGenerator(INDEX_GEN_DELAY ? parseInt(INDEX_GEN_DELAY) : 100);
     const callFn = async function () {
       while (featchTimes++ < 300) {
@@ -77,7 +79,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
     callFn();
     // Wraps a generator into a ReadableStream
     const stream = new ReadableStream({
-      async start(controller) {
+      async pull(controller) {
         let start = 0;
         let end = 0;
         for await (const _ of signalIterator) {
@@ -86,9 +88,9 @@ async function SendMessage(channelId: string | undefined, message: string) {
           }
           if (start < end) {
             const delta = messageContent.slice(start, end);
+            console.log("start", start, "end", end, "delta", delta)
             controller.enqueue(delta);
             start = end;
-            console.log("start", start, "end", end, "delta", delta)
           }
           if (streamDone) {
             const delta = messageContent.slice(start);
