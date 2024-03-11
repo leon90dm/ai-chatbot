@@ -108,6 +108,8 @@ async function SendMessage(channelId: string | undefined, message: string) {
             controller.enqueue(delta);
             controller.close();
             console.log("stream done, start", start, "end", end, "delta", delta)
+            sleep(30000)
+            console.log("sleep done")
             return;
           }
         }
