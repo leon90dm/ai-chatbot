@@ -56,6 +56,10 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         if (!path.includes('chat')) {
           window.history.pushState({}, '', `/chat/${id}`)
         }
+      },
+      onError(error) {
+        console.log("onError", error)
+        console.error(error)
       }
     })
   return (
