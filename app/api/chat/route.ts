@@ -7,6 +7,8 @@ import { Worker, isMainThread, workerData } from 'worker_threads';
 
 
 export const runtime = 'edge'
+export const maxDuration = 300; // 300 seconds (5min)
+
 
 
 const botToken = process.env.CDP_TOKEN; // Replace with your Discord bot token
