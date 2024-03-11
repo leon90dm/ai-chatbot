@@ -97,7 +97,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
           if(end < messageContent.length){
             end = end + Math.floor((messageContent.length - end)/10);
           }
-          if (start < end) {
+          if (start + 5 < end) {  // 至少需要5个字符才进行enqueue
             const delta = messageContent.slice(start, end);
             console.log("start", start, "end", end, "delta", delta)
             controller.enqueue(delta);
