@@ -56,12 +56,17 @@ async function SendMessage(channelId: string | undefined, message: string) {
     let streamDone = false;
     let messageContent = '';
 
-    const discordFetchDelay = DISCORD_FETCH_DELAY ? parseInt(DISCORD_FETCH_DELAY) : 2000;
+    const discordFetchDelay = DISCORD_FETCH_DELAY ? parseInt(DISCORD_FETCH_DELAY) : 1000;
     const signalIterator = indexGenerator(INDEX_GEN_DELAY ? parseInt(INDEX_GEN_DELAY) : 100);
     const callFn = async function () {
       let lastMessageLength = -1;
-      while (featchTimes++ < 300) {
-        const botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
+      while (featchTimes++ < 300 && !streamDone) {
+        let botResponse = undefined;
+        try{
+          botResponse = await fetch(responseUrl, reqHeader).then(res => res.json()).catch(console.error);
+        }catch(err){
+          console.error(err)
+        }
         if (botResponse) {
           for (const message of botResponse) {
             if (message.referenced_message && message.referenced_message.id === messageId) {
@@ -74,7 +79,8 @@ async function SendMessage(channelId: string | undefined, message: string) {
             }
           }
         }
-        await sleep((messageContent.length - lastMessageLength) <= 30 ? 1000: discordFetchDelay);
+        await sleep(Math.min(discordFetchDelay*2, 
+          Math.max(Math.floor(discordFetchDelay/2), Math.floor((messageContent.length - lastMessageLength)*discordFetchDelay/30))));
         lastMessageLength = messageContent.length;
       }
       streamDone = true;
