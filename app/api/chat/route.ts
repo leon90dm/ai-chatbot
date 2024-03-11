@@ -113,7 +113,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
         console.log("stream closed")
       },
     });
-    return new Response(stream, { status: 200 });
+    return new StreamingTextResponse(stream);
   } catch (error) {
     console.error(error);
   }
