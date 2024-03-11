@@ -14,6 +14,7 @@ const SEND_TOKEN = process.env.SEND_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 const POT_ID = process.env.POT_ID
 const INDEX_GEN_DELAY = process.env.INDEX_GEN_DELAY;
+const DISCORD_FETCH_DELAY = process.env.DISCORD_FETCH_DELAY;
 
 function sleep(ms: number | undefined) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -55,9 +56,10 @@ async function SendMessage(channelId: string | undefined, message: string) {
     let streamDone = false;
     let messageContent = '';
 
-
+    const discordFetchDelay = DISCORD_FETCH_DELAY ? parseInt(DISCORD_FETCH_DELAY) : 2000;
     const signalIterator = indexGenerator(INDEX_GEN_DELAY ? parseInt(INDEX_GEN_DELAY) : 100);
     const callFn = async function () {
+      let lastMessageLength = -1;
       while (featchTimes++ < 300) {
         const botResponse = await fetch(responseUrl, reqHeader).then(res => res.json())
         if (botResponse) {
@@ -72,7 +74,8 @@ async function SendMessage(channelId: string | undefined, message: string) {
             }
           }
         }
-        await sleep(3000);
+        await sleep((messageContent.length - lastMessageLength) <= 30 ? 1000: discordFetchDelay);
+        lastMessageLength = messageContent.length;
       }
       streamDone = true;
     }
