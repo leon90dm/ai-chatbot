@@ -87,7 +87,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
       }
       streamDone = true;
     }
-    callFn();
+    await callFn();
     // Wraps a generator into a ReadableStream
     const stream = new ReadableStream({
       async pull(controller) {
