@@ -87,7 +87,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
       }
       streamDone = true;
     }
-
+    callFn();
     // Wraps a generator into a ReadableStream
     const stream = new ReadableStream({
       async pull(controller) {
@@ -115,7 +115,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
         console.log("stream closed")
       },
     });
-    return (new StreamingTextResponse(stream), callFn);
+    return new StreamingTextResponse(stream);
   } catch (error) {
     console.error(error);
   }
@@ -124,8 +124,7 @@ async function SendMessage(channelId: string | undefined, message: string) {
 async function DisChat(messages: string | any[]) {
   var message = messages[messages.length - 1].content
   console.log("sending message: ", message)
-  var streamFn, callFn =  SendMessage(CHANNEL_ID, `<@${POT_ID}> ${message}`)
-  return Promise.all([callFn, streamFn])
+  return SendMessage(CHANNEL_ID, `<@${POT_ID}> ${message}`)
 }
 
 export async function POST(req: Request) {
