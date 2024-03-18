@@ -12,7 +12,7 @@
     "format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache"
   },
   "dependencies": {
-    "@radix-ui/react-alert-dialog": "^1.0.5",
+        "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
@@ -57,14 +57,16 @@
     "eslint-config-next": "14.1.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-tailwindcss": "^3.14.0",
+    "https-proxy-agent": "^7.0.4",
     "postcss": "^8.4.33",
     "prettier": "^3.2.4",
     "tailwind-merge": "^2.2.0",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.3.3",
-    "https-proxy-agent":"^7.0.4"
+    "typescript": "^5.3.3"
   },
   "packageManager": "pnpm@8.6.3",
-  "engines": { "node": "21.6.1" }
+  "engines": {
+    "node": "21.6.1"
+  }
 }

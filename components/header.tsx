@@ -57,7 +57,7 @@ export function Header() {
       <div className="flex items-center justify-end space-x-2">
       
           <IconVercel className="mr-2" />
-          <span className="hidden sm:block">NeoChat</span>
+          <span className="hidden sm:block">SnplChat</span>
           <span className="sm:hidden">Deploy</span>
    
       </div>

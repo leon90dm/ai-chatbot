@@ -24,10 +24,7 @@ export function EmptyScreen({ setInput }: Pick<UseChatHelpers, 'setInput'>) {
     <div className="mx-auto max-w-2xl px-4">
       <div className="rounded-lg border bg-background p-8">
         <div>
-        <h1 className="mb-2 text-lg font-semibold">
-          Welcome to NeoChat!
-        </h1>
-        <img src="/a.png" alt="NeoChat logo" className="w-24" />
+          <h1 className="mb-2 text-lg font-semibold">Welcome to SnplChat!</h1>
         </div>
         <p className="leading-normal text-muted-foreground">
           You can start a conversation here or try the following examples:
