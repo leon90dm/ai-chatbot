@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { Providers } from '@/components/providers'
 import { Header } from '@/components/header'
-import { ClerkProvider } from '@clerk/nextjs'
 
 export const metadata = {
   metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
@@ -36,7 +35,6 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
           className={cn(
@@ -62,6 +60,5 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </Providers>
         </body>
       </html>
-    </ClerkProvider>
   )
 }
