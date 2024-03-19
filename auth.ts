@@ -1,7 +1,8 @@
-import NextAuth, { type DefaultSession } from 'next-auth'
-import GitHub from 'next-auth/providers/github'
+import { type DefaultSession } from 'next-auth'
+// import GitHub from 'next-auth/providers/github'
 
-import CredentialsProvider from "next-auth/providers/credentials"
+// import CredentialsProvider from "next-auth/providers/credentials"
+import { auth as clerkAuth } from '@clerk/nextjs'
 import { Session } from 'next-auth/types'
 
 
@@ -14,35 +15,49 @@ declare module 'next-auth' {
   }
 }
 
-export const {
-  handlers: { GET, POST },
-  auth
-} = NextAuth({
-  providers: [
-    CredentialsProvider({
-      async authorize(credentials) {
-        // const authResponse = await fetch("/users/login", {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(credentials),
-        // })
+export const auth =  function(): Session | null {
+  const {userId} = clerkAuth()
+  if(!userId){
+    return null;
+  }
+  return {
+    user: {
+      id: userId
+    },
+    expires: '0'
+  }
+}
 
-        // if (!authResponse.ok) {
-        //   return null
-        // }
 
-        // const user = await authResponse.json()
+// export const {
+//   handlers: { GET, POST },
+//   auth
+// } = NextAuth({
+//   providers: [
+//     CredentialsProvider({
+//       async authorize(credentials) {
+//         // const authResponse = await fetch("/users/login", {
+//         //   method: "POST",
+//         //   headers: {
+//         //     "Content-Type": "application/json",
+//         //   },
+//         //   body: JSON.stringify(credentials),
+//         // })
 
-        return {
-          id: "1"
-        }
-      },
-    }),
-  ],
-  trustHost: true
-})
+//         // if (!authResponse.ok) {
+//         //   return null
+//         // }
+
+//         // const user = await authResponse.json()
+
+//         return {
+//           id: "1"
+//         }
+//       },
+//     }),
+//   ],
+//   trustHost: true
+// })
 
 // NextAuth({
 //   providers: [GitHub],

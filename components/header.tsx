@@ -14,6 +14,7 @@ import { UserMenu } from '@/components/user-menu'
 import { SidebarMobile } from './sidebar-mobile'
 import { SidebarToggle } from './sidebar-toggle'
 import { ChatHistory } from './chat-history'
+import { UserButton } from "@clerk/nextjs";
 
 async function UserOrLogin() {
   const session = await auth()
@@ -32,7 +33,7 @@ async function UserOrLogin() {
           <IconNextChat className="hidden size-6 mr-2 dark:block" />
         </Link>
       )}
-      <div className="flex items-center">
+      {/* <div className="flex items-center">
         <IconSeparator className="size-6 text-muted-foreground/50" />
         {session?.user ? (
           <UserMenu user={session.user} />
@@ -41,7 +42,7 @@ async function UserOrLogin() {
             <Link href="/sign-in?callbackUrl=/">Login</Link>
           </Button>
         )}
-      </div>
+      </div> */}
     </>
   )
 }
@@ -56,7 +57,8 @@ export function Header() {
       </div>
       <div className="flex items-center justify-end space-x-2">
       
-          <IconVercel className="mr-2" />
+          {/* <IconVercel className="mr-2" /> */}
+          <UserButton/>
           <span className="hidden sm:block">SnplChat</span>
           <span className="sm:hidden">Deploy</span>
    
