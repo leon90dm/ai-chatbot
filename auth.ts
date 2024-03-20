@@ -18,12 +18,7 @@ declare module 'next-auth' {
 export const auth =  function(): Session | null {
   const {userId} = clerkAuth()
   if(!userId){
-    return {
-      user: {
-        id: 'admin'
-      },
-      expires: '0'
-    };
+    return null;
   }
   return {
     user: {
