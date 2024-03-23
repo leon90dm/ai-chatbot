@@ -4,7 +4,7 @@ import { type DefaultSession } from 'next-auth'
 // import CredentialsProvider from "next-auth/providers/credentials"
 import { auth as clerkAuth } from '@clerk/nextjs'
 import { Session } from 'next-auth/types'
-
+export const runtime = 'edge';
 
 declare module 'next-auth' {
   interface Session {

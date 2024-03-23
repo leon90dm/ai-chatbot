@@ -4,7 +4,7 @@ import OpenAI from 'openai'
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
 
-// export const runtime = 'edge'
+export const runtime = 'edge'
 
 const SEND_TOKEN = process.env.SEND_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;

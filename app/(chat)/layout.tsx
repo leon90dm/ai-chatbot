@@ -1,4 +1,5 @@
 import { SidebarDesktop } from '@/components/sidebar-desktop'
+export const runtime = 'edge';
 
 interface ChatLayoutProps {
   children: React.ReactNode
