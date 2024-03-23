@@ -10,7 +10,7 @@ import { Providers } from '@/components/providers'
 import { Header } from '@/components/header'
 import { ClerkProvider } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
-export const runtime = 'edge';
+
 export const metadata = {
   metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
   title: {
