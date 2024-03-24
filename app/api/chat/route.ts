@@ -8,10 +8,11 @@ export const runtime = 'edge'
 
 const SEND_TOKEN = process.env.SEND_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
-const CHAT_URL = process.env.CHAT_URL
+const CHAT_URL = process.env.CHAT_URL;
+const MESSAGE_HISTORY_LENGTH = process.env.MESSAGE_HISTORY_LENGTH ? parseInt(process.env.MESSAGE_HISTORY_LENGTH) : 5;
 
 async function DisChat(messages: string | any[]) {
-  var messageToUse = messages.length <= 1 ? messages: messages.slice(messages.length -1)
+  var messageToUse = messages.length <= MESSAGE_HISTORY_LENGTH ? messages: messages.slice(messages.length - MESSAGE_HISTORY_LENGTH)
   console.log("sending message: ", messageToUse)
   const response =await fetch(`${CHAT_URL}`, {
       method: 'POST',
